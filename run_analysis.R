@@ -13,7 +13,7 @@ data_folder <- "data"
 
 # Add a debugging toggle
 # When debugging is True, only read the test data to save time
-is_debugging <- TRUE
+is_debugging <- FALSE
 
 # Download and extract the data file
 util_download_data <- function() {
@@ -81,7 +81,7 @@ combine_data <- function() {
   features <- read.table(file.path(data_folder, "features.txt"))
   # Filter features with -mean and -std in their name, but not meanFreq
   selected_features <-
-    grep("(-mean|-std)(?!Freq)", features[, 2], perl = T)
+    grep("(-mean|-std)(?!Freq)", features[, 2], perl = TRUE)
   
   
   # Read measurement
@@ -98,7 +98,8 @@ combine_data <- function() {
 
 # Summarise the combined data based on step 5 requirement
 summarise_data<-function(){
-  combine_data() %>%
+  df<-combine_data() %>%
     group_by(subject_id,activity) %>%
     summarise_all(mean)
+  write.table(df,file='output.txt', row.name=FALSE)
 }
