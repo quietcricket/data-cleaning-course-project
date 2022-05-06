@@ -83,14 +83,29 @@ combine_data <- function() {
   selected_features <-
     grep("(-mean|-std)(?!Freq)", features[, 2], perl = TRUE)
   
+
   
   # Read measurement
   measurement <- util_read_both("X")
   # Extracted selected features
   selected_measurement <- measurement[, selected_features]
   
-  # Give feature columns same names as the original data
-  names(selected_measurement) <- features[selected_features, 2]
+  # Clean up feature names
+  feature_names<-features[selected_features,2]
+  
+  # Clean up feature names
+  feature_names<-features[selected_features,2]
+  # Remove ()
+  feature_names<-gsub('\\(|\\)','',feature_names)
+  # Replace - with _
+  feature_names<-gsub('-','_',feature_names)
+  # Separate camel case with _
+  feature_names<-gsub('([a-z])([A-Z])','\\1_\\2',feature_names)
+  # Swap position of -XYZ with -mean or -std (personally I prefer this order)
+  feature_names<-gsub('(_mean|_std)(_X|_Y|_Z)','\\2\\1',feature_names)
+  # convert all into lowercase
+  feature_names<-tolower(feature_names)
+  names(selected_measurement) <- feature_names
   
   # Join all data together as 1 dataset
   cbind(subject, activity, selected_measurement)
@@ -103,3 +118,5 @@ summarise_data<-function(){
     summarise_all(mean)
   write.table(df,file='output.txt', row.name=FALSE)
 }
+
+combine_data()
